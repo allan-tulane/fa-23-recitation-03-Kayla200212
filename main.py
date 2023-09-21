@@ -50,16 +50,46 @@ def quadratic_multiply(x, y):
 
 def _quadratic_multiply(x, y):
     ### TODO
-    pass
-    ###
-
-
+    yvec = y.binary_vec #step 1
+    xvec = x.binary_vec #step 1
     
+    #step 2 (padding 0's)
+    #we decide how many 0s to pad based on the diff in length of x and y
+    #ex if y is 421 and x is 32, add len(y)(3) minus len(x)(2) zeros (one 0)
+    if len(yvec) != len(xvec):#if their lengths r unequal
+      if len(yvec) > len(xvec):#if length of y is longer
+        xvec.zfill(len(yvec)-len(xvec))
+        n = len(yvec)
+      elif len(xvec) > len(yvec):
+        yvec.zfill(len(yvec)-len(xvec))
+        n = len(xvec)
+    else:
+      n = len(xvec)#if lengths are the same just make n the len of x
+    #do i need an else bc if theyre equal we don't need to do anything to len
+    #Base: If both x and y are <= 1, then return their product (step 3)
+    #their values or their lengths?
+    if len(xvec) <= 1 & len(yvec) <= 1:
+      return xvec * yvec #or x&y?
+    else:#split `xvec` and `yvec` into two halves each
+      x_left, x_right = split_number(xvec)
+      y_left, y_right = split_number(yvec)
+
+    #Anywhere there is a multiply(xy), call `_quadratic_multiply`(step 5)
+    prod1 = _quadratic_multiply(x_left, y_left)
+    prod2 = _quadratic_multiply(x_left, y_right)
+    prod3 = _quadratic_multiply(x_right, y_left)
+    prod4 = _quadratic_multiply(x_right, y_right)
+    #Use `bit_shift` to do the 2^n and 2^{n/2} multiplications.(step 6)
+    exp = bit_shift(BinaryNumber(2), n).decimal_val#2^n
+    exp2 = bit_shift(BinaryNumber(2), n//2).decimal_val#2^n/2
+    #combine it all (step 7)
+    return exp*prod1 + exp2*(prod2+prod3)+prod4
     
 def test_quadratic_multiply(x, y, f):
     start = time.time()
     # multiply two numbers x, y using function f
-    
+    #return _quadratic_multiply(x, y)
+    f(x,y)
     return (time.time() - start)*1000
 
 
